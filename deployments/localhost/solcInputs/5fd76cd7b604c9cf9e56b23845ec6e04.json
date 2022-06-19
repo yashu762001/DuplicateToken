@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/PriceConverter.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\nimport \"@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol\";\n\nlibrary PriceConverter {\n    function getPrice(AggregatorV3Interface priceFeed)\n        internal\n        view\n        returns (uint256)\n    {\n        (, int256 answer, , , ) = priceFeed.latestRoundData();\n        return uint256(answer * 10000000000);\n    }\n\n    function getConversionRate(\n        uint256 usdAmount,\n        AggregatorV3Interface priceFeed\n    ) internal view returns (uint256) {\n        uint256 ethPrice = getPrice(priceFeed);\n        uint256 usdAmountinETH = (usdAmount * (10**18)) / (ethPrice);\n        return usdAmountinETH;\n    }\n}\n"
+    },
+    "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ninterface AggregatorV3Interface {\n  function decimals() external view returns (uint8);\n\n  function description() external view returns (string memory);\n\n  function version() external view returns (uint256);\n\n  // getRoundData and latestRoundData should both raise \"No data present\"\n  // if they do not have data to report, instead of returning unset values\n  // which could be misinterpreted as actual reported values.\n  function getRoundData(uint80 _roundId)\n    external\n    view\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    );\n\n  function latestRoundData()\n    external\n    view\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    );\n}\n"
+    },
+    "contracts/YMToken.sol": {
+      "content": "// SPDX-License-Identifier: MIT\n\n// Implementing a ERC20 Token\n// Will have basic functionalities like transfer/balance etc.\n// Minting a million tokens and making them public for $2.\n// Author : Yash Mathur\n\npragma solidity ^0.8.7;\nimport \"./PriceConverter.sol\";\n\ncontract YMToken {\n    string public _symbol;\n    string public _name;\n    uint256 public _decimals;\n    uint256 public _totalSupply;\n    address public _minter;\n\n    mapping(address => uint256) balances;\n    mapping(address => mapping(address => uint256)) allowances;\n\n    event Transfer(address from, address to, uint256 value);\n    event Approval(address owner, address sender, uint256 value);\n    event Burn(address owner, uint256 value);\n\n    AggregatorV3Interface public priceFeed;\n\n    constructor(address priceFeedAddress) {\n        _symbol = \"DUPL\";\n        _name = \"DUPLICATE\";\n        _decimals = 18;\n        _minter = msg.sender;\n        _totalSupply = 1000000;\n        priceFeed = AggregatorV3Interface(priceFeedAddress);\n\n        balances[_minter] = _totalSupply;\n        allowances[_minter][_minter] = _totalSupply;\n        emit Transfer(address(0), _minter, _totalSupply);\n    }\n\n    function getName() public view returns (string memory) {\n        return _name;\n    }\n\n    function getBalance(address add) public view returns (uint256) {\n        return balances[add];\n    }\n\n    function getAllowance(address add) public view returns (uint256) {\n        return allowances[add][msg.sender];\n    }\n\n    function getMinter() public view returns (address) {\n        return _minter;\n    }\n\n    function getConversionRate() public view returns (uint256) {\n        return PriceConverter.getPrice(priceFeed);\n    }\n\n    function getETHAmount(uint256 value) public view returns (uint256) {\n        uint256 amountToBePaid = value * 2 * (10**18);\n        uint256 ethAmountInUsd = PriceConverter.getConversionRate(\n            amountToBePaid,\n            priceFeed\n        );\n\n        return ethAmountInUsd;\n    }\n\n    function getSymbol() public view returns (string memory) {\n        return _symbol;\n    }\n\n    function getDecimals() public view returns (uint256) {\n        return _decimals;\n    }\n\n    function getTotalSupply() public view returns (uint256) {\n        return _totalSupply;\n    }\n\n    function getPriceFeed() public view returns (AggregatorV3Interface) {\n        return priceFeed;\n    }\n\n    function transfer(address to, uint256 value)\n        public\n        payable\n        returns (bool, uint256)\n    {\n        uint256 amountToBePaid = value * 2 * (10**18);\n        uint256 ethAmountInUsd = PriceConverter.getConversionRate(\n            amountToBePaid,\n            priceFeed\n        );\n        require(\n            balances[to] >= value &&\n                allowances[to][msg.sender] >= value &&\n                ethAmountInUsd > 0,\n            \"Either you do not have sufficient balance or you are not allowed\\\n        to transfer this much amount or you are trying to transfer 0 amount\"\n        );\n        balances[to] -= value;\n        balances[msg.sender] += value;\n\n        emit Transfer(msg.sender, to, value);\n\n        return (true, ethAmountInUsd);\n    }\n\n    function transferFrom(\n        address from,\n        address to,\n        uint256 value\n    ) public payable returns (bool, uint256) {\n        uint256 amountToBePaid = value * 2 * (10**18);\n        uint256 ethAmountInUsd = PriceConverter.getConversionRate(\n            amountToBePaid,\n            priceFeed\n        );\n        require(\n            balances[from] >= value &&\n                allowances[from][msg.sender] >= value &&\n                ethAmountInUsd > 0,\n            \"Either you do not have sufficient balance or you are not allowed\\\n        to transfer this much amount or you are trying to transfer 0 amount\"\n        );\n        (bool callSuccess, ) = payable(from).call{value: ethAmountInUsd}(\"\");\n        balances[from] -= value;\n        balances[to] += value;\n\n        emit Transfer(from, to, value);\n\n        return (true, ethAmountInUsd);\n    }\n\n    function approve(address sender, uint256 value) public returns (bool) {\n        allowances[sender][msg.sender] = value;\n        emit Approval(msg.sender, sender, value);\n\n        return true;\n    }\n\n    function burn(uint256 value) public returns (bool) {\n        assert(balances[msg.sender] >= value);\n        balances[msg.sender] -= value;\n        _totalSupply -= value;\n\n        emit Burn(msg.sender, value);\n\n        return true;\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
