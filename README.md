@@ -35,12 +35,7 @@
     even hold them and since any new address holds 0 tokens so we cannot subtract any value from 0. It took me a bit of time to understand the error and
    the resolve it. </li>
   
-    <li> The second problem I faced was again in same test but this time issue was that transfer function was checking whether token request made
-      is valid or not. On the other hand there was a separate payable fund function which was transferring ethereum from user's wallet to contract
-      and sending the user Duplicate Tokens. But issue there was that I was updating balances of msg.sender but actually I was supposed to update
-      balance of contract owner since when fund function was called msg.sender was actually user who was requesting ethereum transfer in return
-      for tokens. But since I was updating balance of msg.sender so during call msg.sender was user who had 0 tokens initially and hence when I
-      was subtracting once again it gave Arithmetic Error.
+<li> The second problem I faced was again in same test but this time issue was that transfer function was checking whether token request made is valid or not. On the other hand there was a separate payable fund function which was transferring ethereum from user's wallet to contract and sending the user Duplicate Tokens. But issue there was that I was updating balances of msg.sender but actually I was supposed to update balance of contract owner since when fund function was called msg.sender was actually user who was requesting ethereum transfer in return for tokens. But since I was updating balance of msg.sender so during call msg.sender was user who had 0 tokens initially and hence when I was subtracting once again it gave Arithmetic Error.
  </li>
       
       </ul>
