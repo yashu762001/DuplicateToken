@@ -5,8 +5,8 @@
 
 <li>
  <ul><p> So, I am very happy to announce the Duplicate Token. I minted 1 million tokens at a price of $2. </p> </ul>
-  <ul> This is a ERC20 Token. </ul> </p> </ul>
-  <ul> All the tokens are identical and possess similar value </ul> </p> </ul>
+  <ul> <p>This is a ERC20 Token. </ul> </p>
+  <ul> <p>All the tokens are identical and possess similar value </ul> </p> 
   
   </li>
   
