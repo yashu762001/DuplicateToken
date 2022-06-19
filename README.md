@@ -41,7 +41,8 @@
       and sending the user Duplicate Tokens. But issue there was that I was updating balances of msg.sender but actually I was supposed to update
       balance of contract owner since when fund function was called msg.sender was actually user who was requesting ethereum transfer in return
       for tokens. But since I was updating balance of msg.sender so during call msg.sender was user who had 0 tokens initially and hence when I
-      was subtracting once again it gave Arithmetic Error. </li>
+      was subtracting once again it gave Arithmetic Error.
+ </li>
       
       </ul>
       
