@@ -31,8 +31,7 @@
  <h2> Difficulties Faced : </h2>
  
  <ul>
-  <li> The maximum that I spent upon was writing a test for transfer function. Lots of errors were coming and Promise I was generating was not getting 
-    resolved due to a error named Arithmetic Error. So basically I was updating balances but there I was subtracting tokens from someone who doesn't
+  <li> The maximum time that I spent upon was writing a test for transfer function. Lots of errors were coming and Promise I was generating was not getting resolved due to a error named Arithmetic Error. So basically I was updating balances but there I was subtracting tokens from someone who doesn't
     even hold them and since any new address holds 0 tokens so we cannot subtract any value from 0. It took me a bit of time to understand the error and
    the resolve it. </li>
   
