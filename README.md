@@ -39,6 +39,5 @@
  </li>
       
       </ul>
-      
-      <h3> So Majorly I learnt to handle the Arithmetic Errors from this project. </h3>
+<h3> So Majorly I learnt to handle the Arithmetic Errors from this project. </h3>
       
