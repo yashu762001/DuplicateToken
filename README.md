@@ -4,9 +4,9 @@
 <h2>Author : Yash Mathur </h2>
 
 <li>
- <ul><p> So, I am very happy to announce the Duplicate Token. I minted 1 million tokens at a price of $2. </p> </ul>
- <ul> <p>This is a ERC20 Token. </p> </ul>
- <ul> <p>All the tokens are identical and possess similar value </p> </ul>
+ <ul>So, I am very happy to announce the Duplicate Token. I minted 1 million tokens at a price of $2. </ul>
+ <ul> This is a ERC20 Token. </ul>
+ <ul>All the tokens are identical and possess similar value</ul>
   
   </li>
   
